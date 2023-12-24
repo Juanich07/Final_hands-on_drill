@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add City</title>
+    <!-- Include Bootstrap for styling (optional) -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+    <div class="container mt-5">
+        <!-- Add City Form -->
+        <h1>Add City</h1>
+        <form id="add-city-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            
+            <label for="country_code">Country Code:</label>
+            <input type="text" id="country_code" name="country_code" required>
+            
+            <label for="district">District:</label>
+            <input type="text" id="district" name="district" required>
+            
+            <label for="population">Population:</label>
+            <input type="number" id="population" name="population" required>
+            
+            <button type="button" onclick="addCity()">Add City</button>
+        </form>
+    </div>
+
+    <!-- Include Axios for making HTTP requests (you can use other libraries too) -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        function addCity() {
+            const formData = {
+                name: document.getElementById('name').value,
+                country_code: document.getElementById('country_code').value,
+                district: document.getElementById('district').value,
+                population: document.getElementById('population').value,
+            };
+
+            axios.post('/cities', formData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                // Reload or update the city list after successful addition
+                axios.get('/cities')
+                    .then(response => {
+                        const cities = response.data;
+                        renderCityTable(cities);
+                    })
+                    .catch(error => console.error(error));
+
+                alert('City added successfully!');
+            })
+            .catch(error => {
+                alert('Error adding city: ' + error.response.data.error);
+                console.error(error);
+            });
+        }
+    </script>
+</body>
+</html>
+
+<style>
+button {
+    border: 1px solid #777777;
+    margin: 0 5px;
+    background-color: #EEEEEE;
+}
+</style>

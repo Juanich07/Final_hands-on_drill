@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>City Management</title>
+    <!-- Include Bootstrap for styling (optional) -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h1>City List</h1>
+        <p><a href="/add_city">Add City</a></p>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Country Code</th>
+                    <th>District</th>
+                    <th>Population</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="city-table"></tbody>
+        </table>
+
+        <h1>Country List</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Continent</th>
+                    <th>Region</th>
+                    <th>SurfaceArea</th>
+                    <th>Population</th>
+                    <!-- Add other columns as needed -->
+                </tr>
+            </thead>
+            <tbody id="country-table"></tbody>
+        </table>
+
+        <h1>Country Language List</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Country Code</th>
+                    <th>Language</th>
+                    <th>Is Official</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody id="country-language-table"></tbody>
+        </table>
+    </div>
+
+    <!-- Include Axios for making HTTP requests (you can use other libraries too) -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        function renderCityTable(cities) {
+            const cityTable = document.getElementById('city-table');
+            cityTable.innerHTML = cities.map(city => `
+                <tr>
+                    <td>${city.ID}</td>
+                    <td>${city.Name}</td>
+                    <td>${city.CountryCode}</td>
+                    <td>${city.District}</td>
+                    <td>${city.Population}</td>
+                    <td style="display: flex; flex-direction: row;">
+                        <button><a href="/edit_city/${city.ID}">Edit</a></button>
+                        <button onclick="deleteCity(${city.ID})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderCountryTable(countries) {
+            const countryTable = document.getElementById('country-table');
+            countryTable.innerHTML = countries.map(country => `
+                <tr>
+                    <td>${country.Code}</td>
+                    <td>${country.Name}</td>
+                    <td>${country.Continent}</td>
+                    <td>${country.Region}</td>
+                    <td>${country.SurfaceArea}</td>
+                    <td>${country.Population}</td>
+                    <!-- Add other columns as needed -->
+                </tr>
+            `).join('');
+        }
+
+        function renderCountryLanguageTable(countryLanguages) {
+            const countryLanguageTable = document.getElementById('country-language-table');
+            countryLanguageTable.innerHTML = countryLanguages.map(language => `
+                <tr>
+                    <td>${language.CountryCode}</td>
+                    <td>${language.Language}</td>
+                    <td>${language.IsOfficial}</td>
+                    <td>${language.Percentage}</td>
+                </tr>
+            `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            axios.get('/cities')
+                .then(response => {
+                    const cities = response.data;
+                    renderCityTable(cities);
+                })
+                .catch(error => console.error(error));
+
+            axios.get('/countries')
+                .then(response => {
+                    const countries = response.data;
+                    renderCountryTable(countries);
+                })
+                .catch(error => console.error(error));
+
+            axios.get('/country_languages')
+                .then(response => {
+                    const countryLanguages = response.data;
+                    renderCountryLanguageTable(countryLanguages);
+                })
+                .catch(error => console.error(error));
+        });
+
+        function deleteCity(cityId) {
+            axios.delete(`/cities/${cityId}`)
+                .then(response => {
+                    // Reload or update the city list after successful deletion
+                    axios.get('/cities')
+                        .then(response => {
+                            const cities = response.data;
+                            renderCityTable(cities);
+                        })
+                        .catch(error => console.error(error));
+                    
+                    alert('City deleted successfully!');
+                })
+                .catch(error => {
+                    alert('Error deleting city: ' + error.response.data.error);
+                    console.error(error);
+                });
+        }
+    </script>
+</body>
+</html>
+
+<style>
+button {
+    border: 1px solid #777777;
+    margin: 0 5px;
+    background-color: #EEEEEE;
+}
+</style>

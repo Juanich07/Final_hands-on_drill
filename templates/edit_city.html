@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit City</title>
+</head>
+<body>
+    <h1>Edit City</h1>
+    <form id="editCityForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br>
+        <label for="country_code">Country Code:</label>
+        <input type="text" id="country_code" name="country_code" required><br>
+        <label for="district">District:</label>
+        <input type="text" id="district" name="district" required><br>
+        <label for="population">Population:</label>
+        <input type="number" id="population" name="population" required><br>
+        <button type="button" onclick="editCity()">Update City</button>
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const cityId = window.location.pathname.split('/').pop();
+        axios.get(`/cities/${cityId}`)
+            .then(response => {
+                const city = response.data[0];
+                document.getElementById('name').value = city.Name;
+                document.getElementById('country_code').value = city.CountryCode;
+                document.getElementById('district').value = city.District;
+                document.getElementById('population').value = city.Population;
+            })
+            .catch(error => console.error(error));
+
+        function editCity() {
+            const form = document.getElementById('editCityForm');
+            const formData = new FormData(form);
+
+            axios.put(`/cities/${cityId}`, Object.fromEntries(formData))
+                .then(response => {
+                    alert(response.data.message);
+                })
+                .catch(error => console.error(error));
+        }
+    </script>
+</body>
+</html>
+
