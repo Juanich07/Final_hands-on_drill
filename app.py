@@ -35,7 +35,6 @@ def data_fetch(query):
     finally:
         cur.close()
 
-# Render HTML templates
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -80,12 +79,19 @@ def get_country_languages():
 def add_city():
     try:
         info = request.get_json()
-        print("Received JSON:", info)
         name = info.get("name")
         country_code = info.get("country_code")
         district = info.get("district")
         population = info.get("population")
+
+        # Check if the country code exists in the country table
         cur = mysql.connection.cursor()
+        cur.execute("SELECT Code FROM world.country WHERE Code = %s", (country_code,))
+        country_exists = cur.fetchone()
+
+        if not country_exists:
+            return jsonify({"error": "Country with the specified code does not exist"}), 400
+
         cur.execute(
             """INSERT INTO world.city 
             (Name, CountryCode, District, Population) 
@@ -110,7 +116,6 @@ def update_city(id):
     try:
         cur = mysql.connection.cursor()
         info = request.get_json()
-        print("Received JSON:", info)
         name = info.get("name")
         country_code = info.get("country_code")
         district = info.get("district")
@@ -150,4 +155,3 @@ def delete_city(id):
 
 if __name__ == "__main__":
     app.run(debug=True)
-
